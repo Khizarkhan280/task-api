@@ -8,6 +8,8 @@ const tasks = [
     { id: 3, title: "Complete Assignment", done: true }
 ];
 
+app.use(express.json());
+
 app.get('/', (req, res) => {
     res.json({
         name: "Task API",
@@ -34,6 +36,19 @@ app.get('/tasks/:id', (req, res) => {
     } else {
         res.status(404).json({ error: `Task ${taskId} not found` });
     }
+});
+
+app.post('/tasks', (req, res) => {
+  const { title } = req.body;
+  const id = tasks[tasks.length - 1].id + 1;
+    if(!title){
+      return res.status(400).json({
+          error: "Title is required"
+      });
+    }
+    let temp = { id: id, title: title, done: false }
+    tasks.push(temp)
+    res.status(201).json(temp);
 });
 
 app.listen(port, () => {
