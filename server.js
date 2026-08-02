@@ -41,10 +41,10 @@ app.get('/tasks/:id', (req, res) => {
 app.post('/tasks', (req, res) => {
   const { title } = req.body;
   const id = tasks[tasks.length - 1].id + 1;
-    if(!title){
-      return res.status(400).json({
-          error: "Title is required"
-      });
+    if (!title || title.trim() === "") {
+        return res.status(400).json({
+            error: "Title is required"
+        });
     }
     let temp = { id: id, title: title, done: false }
     tasks.push(temp)
@@ -54,20 +54,42 @@ app.post('/tasks', (req, res) => {
 app.put('/tasks/:id', (req, res) => {
     const taskId = Number(req.params.id);
     const foundTask = tasks.find(task => task.id === taskId);
-    const { title,done } = req.body;
 
-    if (foundTask) {
-      if(!title){
-        return res.status(400).json({
-            error: "Title is required"
+    if (!foundTask) {
+        return res.status(404).json({
+            error: `Task ${taskId} not found`
         });
-      }
-      foundTask.title = title
-      foundTask.done = done
-      return res.status(200).json(foundTask)
-    } else {
-        res.status(404).json({ error: `Task ${taskId} not found` });
     }
+
+    const { title, done } = req.body;
+
+    if (title === undefined && done === undefined) {
+        return res.status(400).json({
+            error: "At least one field is required"
+        });
+    }
+
+    if (title !== undefined) {
+        if (title.trim() === "") {
+            return res.status(400).json({
+                error: "Title cannot be empty"
+            });
+        }
+
+        foundTask.title = title;
+    }
+
+    if (done !== undefined) {
+        if (typeof done !== "boolean") {
+            return res.status(400).json({
+                error: "Done must be a boolean"
+            });
+        }
+
+        foundTask.done = done;
+    }
+
+    res.status(200).json(foundTask);
 });
 
 app.delete('/tasks/:id', (req, res) => {
