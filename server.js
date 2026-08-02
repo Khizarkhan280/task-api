@@ -2,6 +2,9 @@ const express = require('express');
 const app = express()
 const port = 3000
 
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./openapi.json');
+
 const tasks = [
     { id: 1, title: "Learn Express", done: false },
     { id: 2, title: "Build CRUD API", done: false },
@@ -105,6 +108,12 @@ app.delete('/tasks/:id', (req, res) => {
 
     res.status(204).send();
 });
+
+app.use(
+    '/docs',
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerDocument)
+);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
